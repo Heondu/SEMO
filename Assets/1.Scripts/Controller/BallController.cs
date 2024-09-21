@@ -9,12 +9,16 @@ public class BallController : NetworkBehaviour
     [SerializeField] private AudioClip hit;
     [SerializeField] private ParticleSystem particle;
 
+    [SerializeField] private AnimationCurve collideAnimCurve;
+
+    private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
     private CircleCollider2D circleCollider;
     private NetworkRigidbody2D networkRigidbody2D;
 
     private void Awake()
     {
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         circleCollider = GetComponentInChildren<CircleCollider2D>();
         networkRigidbody2D = GetComponent<NetworkRigidbody2D>();
@@ -26,6 +30,8 @@ public class BallController : NetworkBehaviour
         {
             //충돌할 때마다 RPC로 클라이언트에 파티클 플레이 함수 호출
             RPC_PlayParticle();
+            // 충돌 시 애니메이션 재생
+            RPC_DoDashAnim();
         }
     }
 
@@ -34,6 +40,30 @@ public class BallController : NetworkBehaviour
     {
         particle.Play();
         audioSource.PlayOneShot(hit);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_DoDashAnim()
+    {
+        StartCoroutine(AnimRoutine(collideAnimCurve));
+    }
+
+    private IEnumerator AnimRoutine(AnimationCurve animCurve)
+    {
+        float startTime = 0f;
+        float endTime = 1f;
+
+        float curTime = startTime;
+
+        while (curTime < endTime)
+        {
+            curTime += Time.deltaTime * 10;
+            float newValue = animCurve.Evaluate(curTime);
+            Vector3 newScale = new Vector3(newValue, newValue, newValue);
+            spriteRenderer.transform.localScale = newScale;
+
+            yield return null;
+        }
     }
 
     public void StopMove()

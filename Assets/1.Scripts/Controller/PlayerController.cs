@@ -20,6 +20,7 @@ public class PlayerController : NetworkBehaviour
     private float lastDashTime;
     private float lastDirection = 1;
     [HideInInspector] public UnityEvent onDash;
+    [HideInInspector] public UnityEvent onJump;
 
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip jumpSound;
@@ -55,11 +56,12 @@ public class PlayerController : NetworkBehaviour
     private void Jump(bool isJumping)
     {
         isGrounded = Physics2D.OverlapCircle(transform.position + groundOffset, groundSize, groundLayer);
-
         if (isGrounded && isJumping)
         {
             rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
             audioSource.PlayOneShot(jumpSound);
+
+            onJump?.Invoke();
         }
     }
 

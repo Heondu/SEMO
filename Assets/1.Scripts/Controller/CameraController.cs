@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+    [SerializeField]
     private Transform target;
         
     [SerializeField] private Vector2 minCameraPos;

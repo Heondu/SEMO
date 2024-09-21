@@ -16,6 +16,9 @@ public class PlayerSpriteRenderer : NetworkBehaviour
     //[SerializeField] private float ghostDelay = 0.05f;
     //private int ghostIndex = 0;
     //private float lastGhostTime = 0;
+    [SerializeField] private AnimationCurve jumpAnimCurve;
+    [SerializeField] private AnimationCurve dashAnimCurve;
+    [SerializeField] private AnimationCurve collideAnimCurve;
 
     private PlayerController playerController;
     private SpriteRenderer spriteRenderer;
@@ -28,6 +31,8 @@ public class PlayerSpriteRenderer : NetworkBehaviour
         //ghostRenderers = new GhostRenderer[ghostNum];
 
         playerController.onDash.AddListener(ShowTrail);
+        playerController.onDash.AddListener(DoDashAnim);
+        playerController.onJump.AddListener(DoJumpAnim);
     }
 
     public void Init(int index)
@@ -76,15 +81,48 @@ public class PlayerSpriteRenderer : NetworkBehaviour
         //}
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        RPC_DoCollideAnim();
+    }
+
     private void ShowTrail()
     {
         RPC_ShowTrail();
+    }
+
+    private void DoJumpAnim()
+    {
+        RPC_DoJumpAnim();
+    }
+
+    private void DoDashAnim()
+    {
+        RPC_DoDashAnim();
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_ShowTrail()
     {
         StartCoroutine(TrailRoutine());
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_DoJumpAnim()
+    {
+        StartCoroutine(AnimRoutine(jumpAnimCurve));
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_DoDashAnim()
+    {
+        StartCoroutine(AnimRoutine(dashAnimCurve));
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_DoCollideAnim()
+    {
+        StartCoroutine(AnimRoutine(collideAnimCurve));
     }
 
     private IEnumerator TrailRoutine()
@@ -100,6 +138,24 @@ public class PlayerSpriteRenderer : NetworkBehaviour
         }
 
         trailRenderer.gameObject.SetActive(false);
+    }
+
+    private IEnumerator AnimRoutine(AnimationCurve animCurve)
+    {
+        float startTime = 0f;
+        float endTime = 1f;
+
+        float curTime = startTime;
+
+        while (curTime < endTime)
+        {
+            curTime += Time.deltaTime * 10;
+            float newValue = animCurve.Evaluate(curTime);
+            Vector3 newScale = new Vector3(newValue, newValue, newValue);
+            spriteRenderer.transform.localScale = newScale;
+
+            yield return null;
+        }
     }
 
     //private void Ghost()

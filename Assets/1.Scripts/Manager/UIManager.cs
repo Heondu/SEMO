@@ -100,7 +100,7 @@ public class UIManager : NetworkBehaviour
         completeTimeText.text = "";
 
         int elapsedTime = NetworkedMin * 60 + (int)NetworkedSec;
-        int bestTime = PlayerPrefs.GetInt("BestTime");
+        int bestTime = (PlayerPrefs.GetInt("BestTime") <= 0) ? int.MaxValue : PlayerPrefs.GetInt("BestTime");
         if (elapsedTime < bestTime)
         {
             bestTime = elapsedTime;

@@ -6,6 +6,7 @@ using Fusion;
 using Fusion.Sockets;
 using System;
 using TMPro;
+using Cinemachine;
 
 class PlayerObject
 {
@@ -25,12 +26,17 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
     [SerializeField] private float playerSpawnRangeMinX;
     [SerializeField] private float playerSpawnRangeMaxX;
     [SerializeField] private Vector2 ballSpawnPoint;
+    [SerializeField] private GoalController goal;
+    [SerializeField] private CinemachineVirtualCamera camera;
     private bool[] validColor = new bool[4];
     public int Index;
     public PlayerRef PlayerRef;
 
     private Dictionary<PlayerRef, PlayerObject> spawnedPlayers = new Dictionary<PlayerRef, PlayerObject>();
     public bool IsClear = false;
+
+    public GoalController Goal => goal;
+    public CinemachineVirtualCamera Cam => camera;
 
     private void Awake()
     {
