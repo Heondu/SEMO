@@ -33,6 +33,9 @@ public class PlayerController : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
+        if (GameManager.Instance.GameState != GameState.Playing)
+            return;
+
         if (GetInput(out NetworkInputData inputData))
         {
             Move(inputData.direction);

@@ -11,24 +11,23 @@ public class PlayerSpriteRenderer : NetworkBehaviour
     [SerializeField] private float trailDuration;
     [SerializeField] private AnimationCurve trailSpeed;
     [SerializeField] private Gradient[] trailColors;
-    //[SerializeField] private GhostRenderer ghostPrefab;
-    //[SerializeField] private int ghostNum = 10;
-    //[SerializeField] private float ghostDelay = 0.05f;
-    //private int ghostIndex = 0;
-    //private float lastGhostTime = 0;
     [SerializeField] private AnimationCurve jumpAnimCurve;
     [SerializeField] private AnimationCurve dashAnimCurve;
     [SerializeField] private AnimationCurve collideAnimCurve;
+    [SerializeField] private AnimationCurve emotionAnimCurve;
+    [SerializeField] private float emotionDuration;
 
+    [SerializeField] private SpriteRenderer bodyRenderer;
+    [SerializeField] private SpriteRenderer faceRenderer;
+    private Sprite defaultEmotion;
     private PlayerController playerController;
-    private SpriteRenderer spriteRenderer;
-    private GhostRenderer[] ghostRenderers;
+    private EmotionController emotionController;
 
     private void Awake()
     {
         playerController = GetComponent<PlayerController>();
-        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        //ghostRenderers = new GhostRenderer[ghostNum];
+        emotionController = FindObjectOfType<EmotionController>();
+        defaultEmotion = faceRenderer.sprite;
 
         playerController.onDash.AddListener(ShowTrail);
         playerController.onDash.AddListener(DoDashAnim);
@@ -41,44 +40,69 @@ public class PlayerSpriteRenderer : NetworkBehaviour
         {
             NetworkedIndex = index;
         }
-        spriteRenderer.sprite = sprites[NetworkedIndex];
+        bodyRenderer.sprite = sprites[NetworkedIndex];
         trailRenderer.colorGradient = trailColors[NetworkedIndex];
-
-        if (Object.HasInputAuthority)
-        {
-            GameManager.Instance.Index = index;
-        }
-
-        //for (int i = 0; i < ghostNum; i++)
-        //{
-        //    GhostRenderer clone = Instantiate(ghostPrefab, transform);
-        //    clone.Init(transform, spriteRenderer);
-        //    ghostRenderers[i] = clone;
-        //}
     }
 
     public override void Spawned()
     {
-        spriteRenderer.sprite = sprites[NetworkedIndex];
+        bodyRenderer.sprite = sprites[NetworkedIndex];
         trailRenderer.colorGradient = trailColors[NetworkedIndex];
 
         if (Object.HasInputAuthority)
         {
-            GameManager.Instance.Index = NetworkedIndex;
+            GameManager.Instance.OnSpawned(NetworkedIndex);
         }
     }
 
     private void Update()
     {
-        //if (playerController.IsDashing)
-        //{
-        //
-        //    Ghost();
-        //}
-        //else
-        //{
-        //    ghostIndex = 0;
-        //}
+        if (!Object.HasInputAuthority) return;
+        if (GameManager.Instance.GameState != GameState.Playing) return;
+
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            emotionController.Show();
+        }
+
+        if (emotionController.IsShowing)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                RPC_Emotion(0);
+                emotionController.Hide();
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                RPC_Emotion(1);
+                emotionController.Hide();
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                RPC_Emotion(2);
+                emotionController.Hide();
+            }
+        }
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+    public void RPC_Emotion(int index)
+    {
+        if (emotionRoutine != null)
+            StopCoroutine(emotionRoutine);
+        emotionRoutine = StartCoroutine(EmotionRoutine(index));
+    }
+
+    private Coroutine emotionRoutine;
+    private IEnumerator EmotionRoutine(int index)
+    {
+        faceRenderer.sprite = emotionController.GetEmotion(index);
+        StartCoroutine(FaceRoutine(emotionAnimCurve));
+
+        yield return new WaitForSeconds(emotionDuration);
+
+        faceRenderer.sprite = defaultEmotion;
+        StartCoroutine(FaceRoutine(emotionAnimCurve));
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -152,20 +176,27 @@ public class PlayerSpriteRenderer : NetworkBehaviour
             curTime += Time.deltaTime * 10;
             float newValue = animCurve.Evaluate(curTime);
             Vector3 newScale = new Vector3(newValue, newValue, newValue);
-            spriteRenderer.transform.localScale = newScale;
+            bodyRenderer.transform.localScale = newScale;
 
             yield return null;
         }
     }
 
-    //private void Ghost()
-    //{
-    //    if (Time.time > lastGhostTime + ghostDelay)
-    //    {
-    //        GhostRenderer ghost = ghostRenderers[ghostIndex];
-    //        ghostIndex = ghostIndex + 1 == ghostNum ? 0 : ghostIndex + 1;
-    //        ghost.Active(ghostIndex - ghostNum);
-    //        lastGhostTime = Time.time;
-    //    }
-    //}
+    private IEnumerator FaceRoutine(AnimationCurve animCurve)
+    {
+        float startTime = 0f;
+        float endTime = 1f;
+
+        float curTime = startTime;
+
+        while (curTime < endTime)
+        {
+            curTime += Time.deltaTime * 10;
+            float newValue = animCurve.Evaluate(curTime);
+            Vector3 newScale = new Vector3(newValue, newValue, newValue);
+            faceRenderer.transform.localScale = newScale;
+
+            yield return null;
+        }
+    }
 }

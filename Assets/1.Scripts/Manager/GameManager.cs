@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Fusion;
 using Fusion.Sockets;
@@ -8,10 +7,15 @@ using System;
 using TMPro;
 using Cinemachine;
 
+public enum GameState
+{
+    Initialising, Playing, Chatting
+}
+
 class PlayerObject
 {
     public NetworkObject player;
-    public int colorIndex;
+    public int index;
 }
 
 public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
@@ -28,15 +32,19 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
     [SerializeField] private Vector2 ballSpawnPoint;
     [SerializeField] private GoalController goal;
     [SerializeField] private CinemachineVirtualCamera camera;
-    private bool[] validColor = new bool[4];
+    [SerializeField] private string[] userNames;
+    [SerializeField] private Color[] userColors;
+    private bool[] validIndex = new bool[4];
     public int Index;
     public PlayerRef PlayerRef;
+    public GameState GameState = GameState.Initialising;
 
     private Dictionary<PlayerRef, PlayerObject> spawnedPlayers = new Dictionary<PlayerRef, PlayerObject>();
     public bool IsClear = false;
 
     public GoalController Goal => goal;
     public CinemachineVirtualCamera Cam => camera;
+
 
     private void Awake()
     {
@@ -56,7 +64,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
         for (int i = 0; i < 4; i++)
         {
-            validColor[i] = true;
+            validIndex[i] = true;
         }
     }
 
@@ -70,8 +78,16 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
         //플레이어마다 고유 색상 지정
         int colorIndex = GetValidColorIndex();
         playerObject.GetComponent<PlayerSpriteRenderer>().Init(colorIndex);
-        validColor[colorIndex] = false;
-        spawnedPlayers.Add(playerRef, new PlayerObject { player = playerObject, colorIndex = colorIndex} );
+        validIndex[colorIndex] = false;
+        spawnedPlayers.Add(playerRef, new PlayerObject { player = playerObject, index = colorIndex } );
+    }
+
+
+    public void OnSpawned(int index)
+    {
+        Index = index;
+        GameState = GameState.Playing;
+        ChatManager.Instance.Init(index);
     }
 
     public async void SpawnBall()
@@ -84,19 +100,29 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
         if (spawnedPlayers.TryGetValue(playerRef, out PlayerObject playerObject))
         {
             networkRunner.Despawn(playerObject.player);
-            validColor[playerObject.colorIndex] = true;
+            validIndex[playerObject.index] = true;
             spawnedPlayers.Remove(playerRef);
         }
     }
 
     private int GetValidColorIndex()
     {
-        for (int i = 0; i < validColor.Length; i++)
+        for (int i = 0; i < validIndex.Length; i++)
         {
-            if (validColor[i] == true)
+            if (validIndex[i] == true)
                 return i;
         }
         return 0;
+    }
+
+    public string GetName(int index)
+    {
+        return userNames[index];
+    }
+
+    public Color GetColor(int index)
+    {
+        return userColors[index];
     }
 
     public async void LeaveGame()
@@ -107,17 +133,17 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        if (player == runner.LocalPlayer)
-        {
-            PlayerRef = player;
-        }
-
         if (runner.IsServer)
         {
             SpawnPlayer(player);
         }
 
-        UIManager.Instance.Init(runner);
+        if (player == runner.LocalPlayer)
+        {
+            PlayerRef = player;
+        }
+
+        UIManager.Instance.Init(networkRunner);
         UIManager.Instance.UpdatePlayerCountUI();
     }
 
