@@ -82,6 +82,11 @@ public class PlayerSpriteRenderer : NetworkBehaviour
                 RPC_Emotion(2);
                 emotionController.Hide();
             }
+            else if (Input.GetKeyDown(KeyCode.Alpha4))
+            {
+                RPC_Emotion(3);
+                emotionController.Hide();
+            }
         }
     }
 
