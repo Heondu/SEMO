@@ -9,6 +9,6 @@ EditorBuildSettings:
     path: Assets/0.Scenes/Lobby.unity
     guid: 85fb73d9f27451c4da9f4f0a590746c1
   - enabled: 1
-    path: Assets/0.Scenes/TriangleBall_Multi.unity
-    guid: 2c99ef353c2520c45bd1cfa5f68ec3f2
+    path: Assets/0.Scenes/TriangleBall_Multi_Temp.unity
+    guid: 90d4da816168f0e4ea6e7dbc5b5fb30f
   m_configObjects: {}

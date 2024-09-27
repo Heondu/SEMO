@@ -96,6 +96,7 @@ public class PlayerSpriteRenderer : NetworkBehaviour
         if (emotionRoutine != null)
             StopCoroutine(emotionRoutine);
         emotionRoutine = StartCoroutine(EmotionRoutine(index));
+        playerController.AudioPlayOneShot(emotionController.GetAudioClip(index));
     }
 
     private Coroutine emotionRoutine;

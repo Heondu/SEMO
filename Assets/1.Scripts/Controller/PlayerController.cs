@@ -62,7 +62,8 @@ public class PlayerController : NetworkBehaviour
         if (isGrounded && isJumping)
         {
             rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
-            audioSource.PlayOneShot(jumpSound);
+            //audioSource.PlayOneShot(jumpSound);
+            AudioPlayOneShot(jumpSound);
 
             onJump?.Invoke();
         }
@@ -76,11 +77,17 @@ public class PlayerController : NetworkBehaviour
             lastDashTime = Time.time;
             rb.velocity = Vector2.zero;
             rb.AddForce(new Vector2(lastDirection * dashForce, 0), ForceMode2D.Impulse);
-            audioSource.PlayOneShot(dashSound);
+            //audioSource.PlayOneShot(dashSound);
+            AudioPlayOneShot(dashSound);
             StartCoroutine(DashRoutine());
 
             onDash.Invoke();
         }
+    }
+
+    public void AudioPlayOneShot(AudioClip audioClip)
+    {
+        audioSource.PlayOneShot(audioClip);
     }
 
     private IEnumerator DashRoutine()

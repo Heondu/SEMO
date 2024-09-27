@@ -8,6 +8,8 @@ public class GoalController : NetworkBehaviour
     [SerializeField] private string ballTag;
     [SerializeField] private GameObject completeUI;
     [SerializeField] private GameObject exitButton;
+    [SerializeField] private AudioClip clearAudioClip;
+    [SerializeField] private ParticleSystem particle;
 
     private bool isActived = false;
 
@@ -41,6 +43,8 @@ public class GoalController : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_Complete()
     {
+        particle.Play();
+        AudioManager.instance.SwapTrack(clearAudioClip);
         GameManager.Instance.IsClear = true;
         UIManager.Instance.ShowCompleteTime();
         completeUI.SetActive(true);

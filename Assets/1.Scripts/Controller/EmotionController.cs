@@ -6,6 +6,7 @@ public class EmotionController : MonoBehaviour
     [SerializeField] private Transform holder;
     [SerializeField] private Sprite[] emotions;
     [SerializeField] private Sprite[] numbers;
+    [SerializeField] private AudioClip[] audioClips;
     [SerializeField] private float radius;
     [SerializeField] private Vector3 offest;
     private bool isShowing = false;
@@ -40,5 +41,10 @@ public class EmotionController : MonoBehaviour
     public Sprite GetEmotion(int index)
     {
         return emotions[index];
+    }
+
+    public AudioClip GetAudioClip(int index)
+    {
+        return audioClips[index];
     }
 }
