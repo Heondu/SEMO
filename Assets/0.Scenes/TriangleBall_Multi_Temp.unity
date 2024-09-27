@@ -15960,7 +15960,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e776f0c8d00b3c48877d2c17cb5cba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interval: 10
+  interval: 8
   skyColors:
   - {r: 0.69411767, g: 0.9137255, b: 0.99607843, a: 1}
   - {r: 0.5330188, g: 0.8726414, b: 1, a: 1}
@@ -46380,7 +46380,7 @@ RectTransform:
   m_Children:
   - {fileID: 1386825189}
   m_Father: {fileID: 1412717076}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -68651,12 +68651,12 @@ GameObject:
   - component: {fileID: 1360098860}
   - component: {fileID: 1360098859}
   m_Layer: 0
-  m_Name: BGM
+  m_Name: SFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!82 &1360098859
 AudioSource:
   m_ObjectHideFlags: 0
@@ -68667,11 +68667,11 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 117167874803660807, guid: 18183d4647128ff4086d1b16fe9db40b, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 98ee1dcea5804f144a022879efb0d1e9, type: 3}
-  m_PlayOnAwake: 1
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -69169,7 +69169,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1412717076}
-  m_RootOrder: 0
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -70027,13 +70027,13 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1387721984}
   - {fileID: 1536165379}
   - {fileID: 1465265277}
   - {fileID: 1238670411}
   - {fileID: 1887548000}
   - {fileID: 435651636}
   - {fileID: 1942352303}
+  - {fileID: 1387721984}
   - {fileID: 448680107}
   - {fileID: 334809220}
   - {fileID: 763765560}
@@ -70897,7 +70897,7 @@ RectTransform:
   m_Children:
   - {fileID: 576097782}
   m_Father: {fileID: 1412717076}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
@@ -72144,7 +72144,7 @@ RectTransform:
   m_Children:
   - {fileID: 284061188}
   m_Father: {fileID: 1412717076}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
@@ -79373,7 +79373,7 @@ RectTransform:
   - {fileID: 1339364872}
   - {fileID: 1540561959}
   m_Father: {fileID: 1412717076}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
@@ -94779,7 +94779,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2076373193863301168, guid: 16eb0c2ec41e3864a96a06b44400239a, type: 3}
       propertyPath: m_RootOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2076373193863301168, guid: 16eb0c2ec41e3864a96a06b44400239a, type: 3}
       propertyPath: m_AnchorMax.x
@@ -95001,7 +95001,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7826425810448662202, guid: a83a8d6a430a95c45a317db440eb32c2, type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7826425810448662202, guid: a83a8d6a430a95c45a317db440eb32c2, type: 3}
       propertyPath: m_AnchorMax.x

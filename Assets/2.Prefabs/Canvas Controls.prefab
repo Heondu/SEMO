@@ -1227,7 +1227,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uBAA9\uD45C - \uB2EC\uC744 \uBAA9\uC801\uC9C0\uAE4C\uC9C0 \uC774\uB3D9\uC2DC\uD0A4\uC138\uC694!"
+  m_text: "\uBAA9\uD45C - \uD587\uB2D8\uC744 \uBAA9\uC801\uC9C0\uAE4C\uC9C0 \uC774\uB3D9\uC2DC\uD0A4\uC138\uC694!"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9690ca7faaeaa554ea2ff2d44d852792, type: 2}
   m_sharedMaterial: {fileID: -6914360115880354774, guid: 9690ca7faaeaa554ea2ff2d44d852792, type: 2}

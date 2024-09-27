@@ -10,6 +10,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 10f;
     [SerializeField] private float dashForce = 20f;
+    [SerializeField] private float jumpDoneDuration = 0.1f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
     [SerializeField] private LayerMask groundLayer;
@@ -37,12 +38,14 @@ public class PlayerController : NetworkBehaviour
         {
             Move(0);
             Jump(false);
+            JumpDone(false);
             Dash(false);
         }
         else if (GetInput(out NetworkInputData inputData))
         {
             Move(inputData.direction);
             Jump(inputData.isJumping);
+            JumpDone(inputData.isJumpDone);
             Dash(inputData.isDashing);
         }
     }
@@ -72,6 +75,15 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    private void JumpDone(bool isJumpDone)
+    {
+        if (isJumpDone && rb.velocity.y > 0)
+        {
+            //rb.velocity = rb.velocity * 0.5f;
+            StartCoroutine(JumpDoneRoutine());
+        }
+    }
+
     private void Dash(bool isDashing)
     {
         if (isDashing && !this.isDashing && Time.time >= lastDashTime + dashCooldown)
@@ -91,6 +103,27 @@ public class PlayerController : NetworkBehaviour
     public void AudioPlayOneShot(AudioClip audioClip)
     {
         audioSource.PlayOneShot(audioClip);
+    }
+
+    private IEnumerator JumpDoneRoutine()
+    {
+        float startVelocityY = rb.velocity.y;
+        float endVelocityY = rb.velocity.y * 0.5f;
+        float curVelocityY = startVelocityY;
+
+        float elapsedTime = 0;
+
+        while (elapsedTime < jumpDoneDuration)
+        {
+            elapsedTime += Time.deltaTime;
+
+            float percent = elapsedTime / jumpDoneDuration;
+
+            curVelocityY = Mathf.Lerp(startVelocityY, endVelocityY, percent);
+            rb.velocity = new Vector2(rb.velocity.x, curVelocityY);
+
+            yield return null;
+        }
     }
 
     private IEnumerator DashRoutine()
