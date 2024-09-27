@@ -11,7 +11,8 @@ public class GoalController : NetworkBehaviour
     [SerializeField] private AudioClip clearAudioClip;
     [SerializeField] private ParticleSystem particle;
 
-    private bool isActived = false;
+    private bool isComplete = false;
+    private bool isMoved = false;
 
     private void Update()
     {
@@ -25,17 +26,14 @@ public class GoalController : NetworkBehaviour
     }
 
     //OnTriggerEnter와 같은 것들은 호스트에서만 처리됨
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D collision)
     {
-        if (isActived)
+        if (isComplete)
             return;
 
-        if (Object.HasStateAuthority)
+        if (collision.CompareTag(ballTag))
         {
-            if (collision.CompareTag(ballTag))
-            {
-                RPC_Complete();
-            }
+            RPC_Complete();
         }
     }
 
@@ -48,19 +46,16 @@ public class GoalController : NetworkBehaviour
         GameManager.Instance.IsClear = true;
         UIManager.Instance.ShowCompleteTime();
         completeUI.SetActive(true);
-        isActived = true;
+        isComplete = true;
 
         BallController ball = FindObjectOfType<BallController>();
         ball.StopMove();
-        if (Object.HasStateAuthority)
-        {
-            StartCoroutine(MoveBall(ball));
-        }
+        StartCoroutine(MoveBall(ball));
 
-        Invoke("Complete", 3f);
+        Invoke(nameof(ShowExitButton), 3f);
     }
 
-    public void Complete()
+    public void ShowExitButton()
     {
         exitButton.SetActive(true);
     }

@@ -25,6 +25,9 @@ public class VoiceManager : MonoBehaviour, INetworkRunnerCallbacks
 
     private void Update()
     {
+        if (GameManager.Instance.GameState != GameState.Playing)
+            return;
+
         if (Input.GetKeyDown(KeyCode.M))
         {
             isMuted = !isMuted;

@@ -385,17 +385,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '
-
-    A, D
-
-    Space
-
-    Shift
-
-    M
-
-    G'
+  m_text: "\n\u2190,\u2192\nSpace\nShift\nM\nG"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9690ca7faaeaa554ea2ff2d44d852792, type: 2}
   m_sharedMaterial: {fileID: -6914360115880354774, guid: 9690ca7faaeaa554ea2ff2d44d852792, type: 2}

@@ -5,25 +5,27 @@ using Photon.Chat;
 using Fusion.Photon.Realtime;
 using TMPro;
 using ExitGames.Client.Photon;
-
 public class ChatManager : MonoBehaviour, IChatClientListener
 {
     public static ChatManager Instance { get; private set; }
-
     private ChatClient chatClient;
-    [SerializeField] private string channelName = "GlobalChat";
+    [SerializeField] private string playerChannel = "GlobalChat";
+    [SerializeField] private string systemChannel = "SystemChat";
     [SerializeField] private TMP_InputField inputField;
     [SerializeField] private Button button;
     [SerializeField] private TextMeshProUGUI chatDisplay;
     [SerializeField] private ScrollRect scroll;
+    [SerializeField] private string systemName = "System";
+    [SerializeField] private Color systemColor = Color.red;
+    [SerializeField] private float showDuration = 5f;
     private int index;
     private bool isInited = false;
+    private float lastShowTime = 0;
 
     private void Awake()
     {
         Instance = this;
     }
-
     private void Start()
     {
         button.onClick.AddListener(SendChatMessage);
@@ -34,12 +36,10 @@ public class ChatManager : MonoBehaviour, IChatClientListener
     {
         if (isInited)
             return;
-
         this.index = index;
         ConnectToPhotonChat();
         isInited = true;
     }
-
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Return))
@@ -54,26 +54,23 @@ public class ChatManager : MonoBehaviour, IChatClientListener
                 SendChatMessage();
             }
         }
-
         if (chatClient != null)
         {
             chatClient.Service();
         }
     }
-
     private void ConnectToPhotonChat()
     {
         chatClient = new ChatClient(this);
         string appID = PhotonAppSettings.Global.AppSettings.AppIdChat;
         chatClient.Connect(appID, "1.0", new Photon.Chat.AuthenticationValues(index.ToString()));
     }
-
     public void SendChatMessage(string text)
     {
         string message = text;
         if (!string.IsNullOrEmpty(message))
         {
-            chatClient.PublishMessage(channelName, message);
+            chatClient.PublishMessage(playerChannel, message);
             inputField.text = "";
             inputField.gameObject.SetActive(false);
             button.gameObject.SetActive(false);
@@ -82,11 +79,18 @@ public class ChatManager : MonoBehaviour, IChatClientListener
         {
             ShowUI(false);
         }
-
         GameManager.Instance.GameState = GameState.Playing;
     }
-
     public void SendChatMessage() => SendChatMessage(inputField.text);
+
+    public void SendSystemMessage(string text)
+    {
+        string message = text;
+        if (!string.IsNullOrEmpty(message))
+        {
+            chatClient.PublishMessage(systemChannel, message);
+        }
+    }
 
     public void OnGetMessages(string channelName, string[] senders, object[] messages)
     {
@@ -94,36 +98,37 @@ public class ChatManager : MonoBehaviour, IChatClientListener
         {
             string color;
             string name;
-            if (senders[i].Equals("System"))
+            if (channelName.Equals(systemChannel))
             {
-                color = ColorUtility.ToHtmlStringRGB(Color.black);
-                name = senders[i];
+                color = ColorUtility.ToHtmlStringRGB(systemColor);
+                name = systemName;
+                chatDisplay.text += $"<color=#{color}>[{DateTime.Now.ToString("HH:mm:ss")}][{name}]{messages[i]}</color>\n";
             }
             else
             {
                 int index = senders[i][0] - '0';
                 color = ColorUtility.ToHtmlStringRGB(GameManager.Instance.GetColor(index));
                 name = GameManager.Instance.GetName(index);
+                chatDisplay.text += $"[{DateTime.Now.ToString("HH:mm:ss")}]<color=#{color}>[{name}]</color>{messages[i]}\n";
             }
-
-            chatDisplay.text += $"[{DateTime.Now.ToString("HH:mm:ss")}]<color=#{color}>[{name}]</color>:{messages[i]}\n";
         }
-
         scroll.gameObject.SetActive(true);
-        Invoke("HideScroll", 5f);
+        lastShowTime = Time.time;
+        Invoke(nameof(HideScroll), showDuration);
     }
-
     public void OnConnected()
     {
-        chatClient.Subscribe(new string[] { channelName });
+        if (chatClient != null && chatClient.State == ChatState.ConnectedToFrontEnd)
+        {
+            chatClient.Subscribe(playerChannel);
+            chatClient.Subscribe(systemChannel);
+        }
     }
-
     private void ShowUI(bool value)
     {
         scroll.gameObject.SetActive(value);
         inputField.gameObject.SetActive(value);
         button.gameObject.SetActive(value);
-
         if (value)
         {
             inputField.ActivateInputField();
@@ -132,10 +137,10 @@ public class ChatManager : MonoBehaviour, IChatClientListener
 
     private void HideScroll()
     {
-        if (GameManager.Instance.GameState != GameState.Chatting)
-        {
-            scroll.gameObject.SetActive(false);
-        }
+        if (Time.time - lastShowTime <= showDuration - 0.1f) return;
+        if (GameManager.Instance.GameState == GameState.Chatting) return;
+
+        scroll.gameObject.SetActive(false);
     }
 
     #region IChatClientListener

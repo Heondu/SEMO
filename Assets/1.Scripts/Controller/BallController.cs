@@ -14,12 +14,14 @@ public class BallController : NetworkBehaviour
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
     private CircleCollider2D circleCollider;
+    private NetworkRigidbody2D networkRigidbody2D;
 
     private void Awake()
     {
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         circleCollider = GetComponentInChildren<CircleCollider2D>();
+        networkRigidbody2D = GetComponent<NetworkRigidbody2D>();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -69,13 +71,11 @@ public class BallController : NetworkBehaviour
         rb.velocity = Vector2.zero;
         rb.gravityScale = 0;
         circleCollider.isTrigger = true;
+        networkRigidbody2D.enabled = false;
     }
 
     public void MoveTo(Vector2 pos)
     {
-        if (Object.HasStateAuthority)
-        {
-            rb.position = pos;
-        }
+        transform.position = pos;
     }
 }

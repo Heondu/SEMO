@@ -18,7 +18,8 @@ public class UIManager : NetworkBehaviour
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button exitButton;
     [SerializeField] private Button completeExitButton;
-    [SerializeField] private TextMeshProUGUI completeTimeText;
+    [SerializeField] private TextMeshProUGUI bestTimeText;
+    [SerializeField] private TextMeshProUGUI currentTimeText;
     [SerializeField] private Image[] voiceImages;
     [SerializeField] private TextMeshProUGUI micText;
     private float[] lastVoiceTimes;
@@ -97,7 +98,7 @@ public class UIManager : NetworkBehaviour
 
     public void ShowCompleteTime()
     {
-        completeTimeText.text = "";
+        bestTimeText.text = "";
 
         int elapsedTime = NetworkedMin * 60 + (int)NetworkedSec;
         int bestTime = (PlayerPrefs.GetInt("BestTime") <= 0) ? int.MaxValue : PlayerPrefs.GetInt("BestTime");
@@ -105,12 +106,19 @@ public class UIManager : NetworkBehaviour
         {
             bestTime = elapsedTime;
             PlayerPrefs.SetInt("BestTime", bestTime);
-            completeTimeText.text += "BEST\n";
+            currentTimeText.text = "신기록 달성!\n";
+        }
+        else
+        {
+            currentTimeText.text = "현재 기록\n";
         }
         int min = bestTime / 60;
         int sec = bestTime % 60;
+        bestTimeText.text = "최고 기록\n" + string.Format("{0:D2}:{1:D2}", min, sec);
 
-        completeTimeText.text += string.Format("{0:D2}:{1:D2}", min, sec);
+        min = elapsedTime / 60;
+        sec = elapsedTime % 60;
+        currentTimeText.text += string.Format("{0:D2}:{1:D2}", min, sec);
     }
 
     public void ActiveVoiceUI()

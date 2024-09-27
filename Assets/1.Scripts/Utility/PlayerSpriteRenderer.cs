@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using Fusion;
+using System;
 
 public class PlayerSpriteRenderer : NetworkBehaviour
 {
@@ -53,6 +54,7 @@ public class PlayerSpriteRenderer : NetworkBehaviour
         {
             GameManager.Instance.OnSpawned(NetworkedIndex);
         }
+
     }
 
     private void Update()
@@ -113,22 +115,26 @@ public class PlayerSpriteRenderer : NetworkBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        RPC_DoCollideAnim();
+        if (Object.HasStateAuthority)
+            RPC_DoCollideAnim();
     }
 
     private void ShowTrail()
     {
-        RPC_ShowTrail();
+        if (Object.HasStateAuthority)
+            RPC_ShowTrail();
     }
 
     private void DoJumpAnim()
     {
-        RPC_DoJumpAnim();
+        if (Object.HasStateAuthority)
+            RPC_DoJumpAnim();
     }
 
     private void DoDashAnim()
     {
-        RPC_DoDashAnim();
+        if (Object.HasStateAuthority)
+            RPC_DoDashAnim();
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]

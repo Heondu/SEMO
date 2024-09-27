@@ -79,7 +79,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
         int colorIndex = GetValidColorIndex();
         playerObject.GetComponent<PlayerSpriteRenderer>().Init(colorIndex);
         validIndex[colorIndex] = false;
-        spawnedPlayers.Add(playerRef, new PlayerObject { player = playerObject, index = colorIndex } );
+        spawnedPlayers.Add(playerRef, new PlayerObject { player = playerObject, index = colorIndex });
     }
 
 
@@ -88,6 +88,14 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
         Index = index;
         GameState = GameState.Playing;
         ChatManager.Instance.Init(index);
+        RPC_OnSpawned(index);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_OnSpawned(int index)
+    {
+        string color = ColorUtility.ToHtmlStringRGB(userColors[index]);
+        ChatManager.Instance.SendSystemMessage($"<color=#{color}>{userNames[index]}</color>가 입장했습니다.");
     }
 
     public async void SpawnBall()
@@ -101,6 +109,8 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
         {
             networkRunner.Despawn(playerObject.player);
             validIndex[playerObject.index] = true;
+            string color = ColorUtility.ToHtmlStringRGB(userColors[playerObject.index]);
+            ChatManager.Instance.SendSystemMessage($"<color=#{color}>{userNames[playerObject.index]}</color>가 퇴장했습니다.");
             spawnedPlayers.Remove(playerRef);
         }
     }
