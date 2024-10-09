@@ -24,6 +24,7 @@ public class BallController : NetworkBehaviour
         networkRigidbody2D = GetComponent<NetworkRigidbody2D>();
     }
 
+    //물리 관련 이벤트는 호스트에서만 발생
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (Object.HasStateAuthority)

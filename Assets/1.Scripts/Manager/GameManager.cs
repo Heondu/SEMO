@@ -87,7 +87,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
     {
         Index = index;
         GameState = GameState.Playing;
-        ChatManager.Instance.Init(index);
+        ChatManager.Instance.Init(networkRunner.SessionInfo.Name, index);
         RPC_OnSpawned(index);
     }
 

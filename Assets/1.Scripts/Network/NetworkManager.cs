@@ -4,12 +4,13 @@ using Fusion;
 using Fusion.Sockets;
 using System.Collections.Generic;
 using System;
+using Fusion.Photon.Realtime;
 
 public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 {
     private NetworkRunner networkRunner;
-
     private List<SessionInfo> sessionList;
+    public string GameVersion => Application.version;
 
     [HideInInspector]
     public UnityEvent onJoinLobby = new UnityEvent();
@@ -41,12 +42,17 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         //6자리의 랜덤 룸코드 생성 및 세션이름에 할당
         string roomCode = GenerateRandomRoomCode(6);
+        var sessionProperties = new Dictionary<string, SessionProperty>()
+        {
+            { "GameVersion", GameVersion }
+        };
         StartGameArgs startGameArgs = new StartGameArgs()
         {
             GameMode = GameMode.Host,
             SessionName = roomCode,
             CustomLobbyName = roomCode,
             PlayerCount = 4,
+            SessionProperties = sessionProperties,
             //룸 접속시 1번씬으로 전환 설정
             Scene = SceneRef.FromIndex(1),
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
@@ -99,6 +105,34 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
             if (sessionInfo.Name == name)
             {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    public bool IsMatchedVersion(string name)
+    {
+        if (sessionList == null)
+            return false;
+
+        foreach (SessionInfo sessionInfo in sessionList)
+        {
+            if (sessionInfo.Name != name)
+                continue;
+
+            if (sessionInfo.Properties.ContainsKey("GameVersion"))
+            {
+                SessionProperty sessionProperty = sessionInfo.Properties["GameVersion"];
+                string sessionGameVersion = sessionProperty.PropertyValue.ToString();
+                Debug.Log($"{sessionGameVersion}, {GameVersion}");
+                if (sessionGameVersion == GameVersion)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
         return false;

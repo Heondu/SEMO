@@ -5,6 +5,7 @@ using Photon.Chat;
 using Fusion.Photon.Realtime;
 using TMPro;
 using ExitGames.Client.Photon;
+
 public class ChatManager : MonoBehaviour, IChatClientListener
 {
     public static ChatManager Instance { get; private set; }
@@ -32,11 +33,14 @@ public class ChatManager : MonoBehaviour, IChatClientListener
         ShowUI(false);
     }
 
-    public void Init(int index)
+    public void Init(string sessionName, int index)
     {
         if (isInited)
             return;
+
         this.index = index;
+        playerChannel = sessionName + "_GlobalChat";
+        systemChannel = sessionName + "_SystemChat";
         ConnectToPhotonChat();
         isInited = true;
     }
@@ -63,7 +67,8 @@ public class ChatManager : MonoBehaviour, IChatClientListener
     {
         chatClient = new ChatClient(this);
         string appID = PhotonAppSettings.Global.AppSettings.AppIdChat;
-        chatClient.Connect(appID, "1.0", new Photon.Chat.AuthenticationValues(index.ToString()));
+        string appVersion = Application.version;
+        chatClient.Connect(appID, appVersion, new Photon.Chat.AuthenticationValues(index.ToString()));
     }
     public void SendChatMessage(string text)
     {
@@ -94,6 +99,7 @@ public class ChatManager : MonoBehaviour, IChatClientListener
 
     public void OnGetMessages(string channelName, string[] senders, object[] messages)
     {
+        bool isValid = false;
         for (int i = 0; i < senders.Length; i++)
         {
             string color;
@@ -103,18 +109,24 @@ public class ChatManager : MonoBehaviour, IChatClientListener
                 color = ColorUtility.ToHtmlStringRGB(systemColor);
                 name = systemName;
                 chatDisplay.text += $"<color=#{color}>[{DateTime.Now.ToString("HH:mm:ss")}][{name}]{messages[i]}</color>\n";
+                isValid = true;
             }
-            else
+            else if (channelName.Equals(playerChannel))
             {
                 int index = senders[i][0] - '0';
                 color = ColorUtility.ToHtmlStringRGB(GameManager.Instance.GetColor(index));
                 name = GameManager.Instance.GetName(index);
                 chatDisplay.text += $"[{DateTime.Now.ToString("HH:mm:ss")}]<color=#{color}>[{name}]</color>{messages[i]}\n";
+                isValid = true;
             }
         }
-        scroll.gameObject.SetActive(true);
-        lastShowTime = Time.time;
-        Invoke(nameof(HideScroll), showDuration);
+
+        if (isValid)
+        {
+            scroll.gameObject.SetActive(true);
+            lastShowTime = Time.time;
+            Invoke(nameof(HideScroll), showDuration);
+        }
     }
     public void OnConnected()
     {

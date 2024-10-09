@@ -45,6 +45,7 @@ public class VoiceManager : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
+    //플레이어 아이콘 표시
     private void OnVoiceDetected()
     {
         UIManager.Instance.ActiveVoiceUI();

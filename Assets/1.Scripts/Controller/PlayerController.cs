@@ -32,6 +32,7 @@ public class PlayerController : NetworkBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
+    //네트워크 프레임마다 물리 연산을 처리하여 일관된 동기화 보장
     public override void FixedUpdateNetwork()
     {
         if (GameManager.Instance.GameState != GameState.Playing)
@@ -41,6 +42,7 @@ public class PlayerController : NetworkBehaviour
             JumpDone(false);
             Dash(false);
         }
+        //클라이언트 입력을 서버에서 처리하여 모든 클라이언트에 일관된 상태 반영
         else if (GetInput(out NetworkInputData inputData))
         {
             Move(inputData.direction);

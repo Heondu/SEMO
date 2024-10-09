@@ -11,9 +11,12 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private TMP_InputField roomCodeInputField;
     [SerializeField] private TextMeshProUGUI roomInfoText;
     [SerializeField] private Button quitButton;
+    [SerializeField] private TextMeshProUGUI gameVersionText;
 
     private void Start()
     {
+        gameVersionText.text = "v" + networkManager.GameVersion;
+
         //로비 접속시 호스트 버튼 활성화
         networkManager.onJoinLobby.AddListener(() => {
             hostButton.interactable = true;
@@ -48,7 +51,12 @@ public class LobbyManager : MonoBehaviour
         {
             roomInfoText.text = "해당 룸코드는 존재하지 않습니다.";
             roomInfoText.gameObject.SetActive(true);
-            return;
+        }
+        //버전 일치 여부 확인
+        else if (!networkManager.IsMatchedVersion(roomCode))
+        {
+            roomInfoText.text = "버전이 일치하지 않습니다.";
+            roomInfoText.gameObject.SetActive(true);
         }
         //플레이어가 다 찼는지 확인
         else if (networkManager.IsPlayerFull(roomCode))

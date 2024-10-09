@@ -20,6 +20,7 @@ public class PlayerInput : NetworkBehaviour, INetworkRunnerCallbacks
 
     private void Update()
     {
+        //OnInput 함수가 호출될 때까지 입력 상태 유지
         isJumping = isJumping || Input.GetButtonDown("Jump");
         isJumpDone = isJumpDone || Input.GetButtonUp("Jump");
         isDashing = isDashing || Input.GetButtonDown("Dash");
@@ -31,6 +32,7 @@ public class PlayerInput : NetworkBehaviour, INetworkRunnerCallbacks
         {
             float direction = Input.GetAxis("Horizontal");
 
+            //입력 구조체에 저장, 추후 호스트에서 받아와 입력 수행
             NetworkInputData inputData = new NetworkInputData
             {
                 direction = direction,
