@@ -32,14 +32,28 @@ public class PlayerInput : NetworkBehaviour, INetworkRunnerCallbacks
         {
             float direction = Input.GetAxis("Horizontal");
 
-            //입력 구조체에 저장, 추후 호스트에서 받아와 입력 수행
-            NetworkInputData inputData = new NetworkInputData
+            NetworkInputData inputData;
+            if (GameManager.Instance.GameState == GameState.Playing)
             {
-                direction = direction,
-                isJumping = this.isJumping,
-                isJumpDone = this.isJumpDone,
-                isDashing = this.isDashing
-            };
+                //입력 구조체에 저장, 추후 호스트에서 받아와 입력 수행
+                inputData = new NetworkInputData
+                {
+                    direction = direction,
+                    isJumping = this.isJumping,
+                    isJumpDone = this.isJumpDone,
+                    isDashing = this.isDashing
+                };
+            }
+            else
+            {
+                inputData = new NetworkInputData
+                {
+                    direction = 0,
+                    isJumping = false,
+                    isJumpDone = false,
+                    isDashing = false
+                };
+            }
             isJumping = false;
             isJumpDone = false;
             isDashing = false;

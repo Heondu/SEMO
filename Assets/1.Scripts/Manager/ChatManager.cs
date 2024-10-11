@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Chat;
+using Fusion;
 using Fusion.Photon.Realtime;
 using TMPro;
 using ExitGames.Client.Photon;
@@ -37,7 +38,7 @@ public class ChatManager : MonoBehaviour, IChatClientListener
     {
         if (isInited)
             return;
-
+        
         this.index = index;
         playerChannel = sessionName + "_GlobalChat";
         systemChannel = sessionName + "_SystemChat";

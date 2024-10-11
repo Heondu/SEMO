@@ -178,6 +178,9 @@ MonoBehaviour:
   audioSource: {fileID: 4829547240649268949}
   jumpSound: {fileID: 8300000, guid: 7e9ee6dc04a5d40d1a5dfc4beb9865e7, type: 3}
   dashSound: {fileID: 8300000, guid: d46323e22e74e46baa241cbf48c85671, type: 3}
+  _NetworkedPosition: {x: 0, y: 0}
+  _NetworkedRotation: 0
+  interpolationSpeed: 1
 --- !u!114 &7088848874438855406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -855,7 +858,7 @@ MonoBehaviour:
   - {x: 0.60176337, y: -0.37206888, z: 0}
   m_ShapePathHash: 587069466
   m_Mesh: {fileID: 0}
-  m_InstanceId: 228568
+  m_InstanceId: 255784
   m_LocalBounds:
     m_Center: {x: -0.0043613315, y: 0.14828378, z: 0}
     m_Extent: {x: 0.60612464, y: 0.52907526, z: 0}
@@ -981,7 +984,7 @@ MonoBehaviour:
   - {x: 0.65, y: -0.49999997, z: 0}
   m_ShapePathHash: -1812287985
   m_Mesh: {fileID: 0}
-  m_InstanceId: 228574
+  m_InstanceId: 255790
   m_LocalBounds:
     m_Center: {x: 0, y: 0.05000004, z: 0}
     m_Extent: {x: 0.65, y: 0.55, z: 0}

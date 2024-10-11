@@ -27,29 +27,48 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private AudioClip jumpSound;
     [SerializeField] private AudioClip dashSound;
 
+    //[Networked] public Vector2 NetworkedPosition { get; private set; }
+    //[Networked] public float NetworkedRotation { get; private set; }
+    //[SerializeField] private float interpolationSpeed = 16;
+    //private Vector2 targetPosition;
+    //private float targetRotation;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
     }
 
+    //private void Update()
+    //{
+    //    if (Object.HasStateAuthority)
+    //        return;
+    //
+    //    rb.position = Vector2.Lerp(rb.position, targetPosition, Time.deltaTime * interpolationSpeed);
+    //    rb.rotation = Mathf.Lerp(rb.rotation, targetRotation, Time.deltaTime * interpolationSpeed);
+    //}
+
     //네트워크 프레임마다 물리 연산을 처리하여 일관된 동기화 보장
     public override void FixedUpdateNetwork()
     {
-        if (GameManager.Instance.GameState != GameState.Playing)
-        {
-            Move(0);
-            Jump(false);
-            JumpDone(false);
-            Dash(false);
-        }
         //클라이언트 입력을 서버에서 처리하여 모든 클라이언트에 일관된 상태 반영
-        else if (GetInput(out NetworkInputData inputData))
+        if (Object.HasStateAuthority && GetInput(out NetworkInputData inputData))
         {
             Move(inputData.direction);
             Jump(inputData.isJumping);
             JumpDone(inputData.isJumpDone);
             Dash(inputData.isDashing);
         }
+
+        //if (Object.HasStateAuthority)
+        //{
+        //    NetworkedPosition = rb.position;
+        //    NetworkedRotation = rb.rotation;
+        //}
+        //else
+        //{
+        //    targetPosition = NetworkedPosition;
+        //    targetRotation = NetworkedRotation;
+        //}
     }
 
     private void Move(float direction)
