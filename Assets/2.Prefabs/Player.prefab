@@ -180,7 +180,7 @@ MonoBehaviour:
   dashSound: {fileID: 8300000, guid: d46323e22e74e46baa241cbf48c85671, type: 3}
   _NetworkedPosition: {x: 0, y: 0}
   _NetworkedRotation: 0
-  interpolationSpeed: 1
+  interpolationSpeed: 16
 --- !u!114 &7088848874438855406
 MonoBehaviour:
   m_ObjectHideFlags: 0

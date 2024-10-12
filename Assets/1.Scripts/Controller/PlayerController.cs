@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using Fusion;
+using Fusion.Addons.Physics;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -27,24 +28,39 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private AudioClip jumpSound;
     [SerializeField] private AudioClip dashSound;
 
-    //[Networked] public Vector2 NetworkedPosition { get; private set; }
-    //[Networked] public float NetworkedRotation { get; private set; }
-    //[SerializeField] private float interpolationSpeed = 16;
-    //private Vector2 targetPosition;
-    //private float targetRotation;
+    private NetworkRigidbody2D networkRigidbody2D;
+
+    [Networked] public Vector2 NetworkedPosition { get; private set; }
+    [Networked] public float NetworkedRotation { get; private set; }
+    [SerializeField] private float interpolationSpeed = 16;
+    private Vector2 targetPosition;
+    private float targetRotation;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
     }
 
+    public override void Spawned()
+    {
+        if (Object.HasStateAuthority)
+            return;
+
+        NetworkRunner runner = FindObjectOfType<NetworkRunner>();
+        runner.SetIsSimulated(GetComponent<NetworkObject>(), false);
+
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0;
+        rb.inertia = 0;
+    }
+
     //private void Update()
     //{
     //    if (Object.HasStateAuthority)
     //        return;
-    //
-    //    rb.position = Vector2.Lerp(rb.position, targetPosition, Time.deltaTime * interpolationSpeed);
-    //    rb.rotation = Mathf.Lerp(rb.rotation, targetRotation, Time.deltaTime * interpolationSpeed);
+    //    
+    //    transform.position = Vector2.Lerp(transform.position, targetPosition, Time.deltaTime * interpolationSpeed);
+    //    transform.rotation = Quaternion.Lerp(Quaternion.Euler(transform.eulerAngles), Quaternion.Euler(0, 0, targetRotation), Time.deltaTime * interpolationSpeed);
     //}
 
     //네트워크 프레임마다 물리 연산을 처리하여 일관된 동기화 보장
