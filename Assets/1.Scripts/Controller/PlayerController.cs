@@ -11,6 +11,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 10f;
     [SerializeField] private float dashForce = 20f;
+    [SerializeField] private float slamForce = 30f;
     [SerializeField] private float jumpDoneDuration = 0.1f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
@@ -19,22 +20,17 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float groundSize;
     private bool isGrounded;
     private bool isDashing;
+    private bool isSlaming;
     private float lastDashTime;
     private float lastDirection = 1;
-    [HideInInspector] public UnityEvent onDash;
     [HideInInspector] public UnityEvent onJump;
+    [HideInInspector] public UnityEvent onDash;
+    [HideInInspector] public UnityEvent onSlam;
 
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip jumpSound;
     [SerializeField] private AudioClip dashSound;
-
-    private NetworkRigidbody2D networkRigidbody2D;
-
-    [Networked] public Vector2 NetworkedPosition { get; private set; }
-    [Networked] public float NetworkedRotation { get; private set; }
-    [SerializeField] private float interpolationSpeed = 16;
-    private Vector2 targetPosition;
-    private float targetRotation;
+    [SerializeField] private AudioClip slamSound;
 
     private void Awake()
     {
@@ -54,15 +50,6 @@ public class PlayerController : NetworkBehaviour
         rb.inertia = 0;
     }
 
-    //private void Update()
-    //{
-    //    if (Object.HasStateAuthority)
-    //        return;
-    //    
-    //    transform.position = Vector2.Lerp(transform.position, targetPosition, Time.deltaTime * interpolationSpeed);
-    //    transform.rotation = Quaternion.Lerp(Quaternion.Euler(transform.eulerAngles), Quaternion.Euler(0, 0, targetRotation), Time.deltaTime * interpolationSpeed);
-    //}
-
     //네트워크 프레임마다 물리 연산을 처리하여 일관된 동기화 보장
     public override void FixedUpdateNetwork()
     {
@@ -73,23 +60,18 @@ public class PlayerController : NetworkBehaviour
             Jump(inputData.isJumping);
             JumpDone(inputData.isJumpDone);
             Dash(inputData.isDashing);
+            //Slam(inputData.isSlaming);
         }
+    }
 
-        //if (Object.HasStateAuthority)
-        //{
-        //    NetworkedPosition = rb.position;
-        //    NetworkedRotation = rb.rotation;
-        //}
-        //else
-        //{
-        //    targetPosition = NetworkedPosition;
-        //    targetRotation = NetworkedRotation;
-        //}
+    private void Update()
+    {
+        isGrounded = Physics2D.OverlapCircle(transform.position + groundOffset, groundSize, groundLayer);
     }
 
     private void Move(float direction)
     {
-        if (isDashing)
+        if (isDashing || isSlaming)
             return;
 
         rb.velocity = new Vector2(direction * moveSpeed, rb.velocity.y);
@@ -101,7 +83,6 @@ public class PlayerController : NetworkBehaviour
 
     private void Jump(bool isJumping)
     {
-        isGrounded = Physics2D.OverlapCircle(transform.position + groundOffset, groundSize, groundLayer);
         if (isGrounded && isJumping)
         {
             rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
@@ -117,7 +98,7 @@ public class PlayerController : NetworkBehaviour
         if (isJumpDone && rb.velocity.y > 0)
         {
             //rb.velocity = rb.velocity * 0.5f;
-            StartCoroutine(JumpDoneRoutine());
+            jumpDoneRoutine = StartCoroutine(JumpDoneRoutine());
         }
     }
 
@@ -133,7 +114,29 @@ public class PlayerController : NetworkBehaviour
             AudioPlayOneShot(dashSound);
             StartCoroutine(DashRoutine());
 
-            onDash.Invoke();
+            onDash?.Invoke();
+        }
+    }
+
+    private void Slam(bool isSlaming)
+    {
+        if (isGrounded)
+        {
+            this.isSlaming = false;
+        }
+
+        if (isSlaming && !isGrounded && !this.isSlaming)
+        {
+            this.isSlaming = true;
+
+            if (jumpDoneRoutine != null)
+                StopCoroutine(jumpDoneRoutine);
+
+            rb.velocity = Vector2.zero;
+            rb.AddForce(Vector2.down * slamForce, ForceMode2D.Impulse);
+            AudioPlayOneShot(slamSound);
+
+            onSlam?.Invoke();
         }
     }
 
@@ -142,6 +145,7 @@ public class PlayerController : NetworkBehaviour
         audioSource.PlayOneShot(audioClip);
     }
 
+    private Coroutine jumpDoneRoutine;
     private IEnumerator JumpDoneRoutine()
     {
         float startVelocityY = rb.velocity.y;
@@ -174,7 +178,8 @@ public class PlayerController : NetworkBehaviour
         }
 
         isDashing = false;
-        rb.velocity = Vector2.zero;
+        if (!isSlaming)
+            rb.velocity = Vector2.zero;
     }
 
     private void OnDrawGizmosSelected()

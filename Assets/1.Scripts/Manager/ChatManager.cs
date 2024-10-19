@@ -31,7 +31,8 @@ public class ChatManager : MonoBehaviour, IChatClientListener
     private void Start()
     {
         button.onClick.AddListener(SendChatMessage);
-        ShowUI(false);
+        CloseInputField();
+        CloseScroll();
     }
 
     public void Init(string sessionName, int index)
@@ -45,18 +46,30 @@ public class ChatManager : MonoBehaviour, IChatClientListener
         ConnectToPhotonChat();
         isInited = true;
     }
+
     private void Update()
     {
+        if (GameManager.Instance.GameState != GameState.Playing && GameManager.Instance.GameState != GameState.Chatting)
+            return;
+
         if (Input.GetKeyDown(KeyCode.Return))
         {
             if (GameManager.Instance.GameState == GameState.Playing)
             {
-                GameManager.Instance.GameState = GameState.Chatting;
-                ShowUI(true);
+                OpenInputField();
+                OpenScroll();
             }
             else if (GameManager.Instance.GameState == GameState.Chatting)
             {
                 SendChatMessage();
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (GameManager.Instance.GameState == GameState.Chatting)
+            {
+                CloseInputField();
+                CloseScroll();
             }
         }
         if (chatClient != null)
@@ -64,6 +77,7 @@ public class ChatManager : MonoBehaviour, IChatClientListener
             chatClient.Service();
         }
     }
+
     private void ConnectToPhotonChat()
     {
         chatClient = new ChatClient(this);
@@ -71,6 +85,7 @@ public class ChatManager : MonoBehaviour, IChatClientListener
         string appVersion = Application.version;
         chatClient.Connect(appID, appVersion, new Photon.Chat.AuthenticationValues(index.ToString()));
     }
+
     public void SendChatMessage(string text)
     {
         string message = text;
@@ -78,15 +93,10 @@ public class ChatManager : MonoBehaviour, IChatClientListener
         {
             chatClient.PublishMessage(playerChannel, message);
             inputField.text = "";
-            inputField.gameObject.SetActive(false);
-            button.gameObject.SetActive(false);
         }
-        else
-        {
-            ShowUI(false);
-        }
-        GameManager.Instance.GameState = GameState.Playing;
+        CloseInputField();
     }
+
     public void SendChatMessage() => SendChatMessage(inputField.text);
 
     public void SendSystemMessage(string text)
@@ -124,11 +134,12 @@ public class ChatManager : MonoBehaviour, IChatClientListener
 
         if (isValid)
         {
-            scroll.gameObject.SetActive(true);
+            OpenScroll();
             lastShowTime = Time.time;
-            Invoke(nameof(HideScroll), showDuration);
+            Invoke(nameof(TryCloseScroll), showDuration);
         }
     }
+
     public void OnConnected()
     {
         if (chatClient != null && chatClient.State == ChatState.ConnectedToFrontEnd)
@@ -137,23 +148,40 @@ public class ChatManager : MonoBehaviour, IChatClientListener
             chatClient.Subscribe(systemChannel);
         }
     }
-    private void ShowUI(bool value)
+
+    private void OpenScroll()
     {
-        scroll.gameObject.SetActive(value);
-        inputField.gameObject.SetActive(value);
-        button.gameObject.SetActive(value);
-        if (value)
-        {
-            inputField.ActivateInputField();
-        }
+        scroll.gameObject.SetActive(true);
     }
 
-    private void HideScroll()
+    private void CloseScroll()
+    {
+        scroll.gameObject?.SetActive(false);
+    }
+
+    private void TryCloseScroll()
     {
         if (Time.time - lastShowTime <= showDuration - 0.1f) return;
         if (GameManager.Instance.GameState == GameState.Chatting) return;
 
-        scroll.gameObject.SetActive(false);
+        CloseScroll();
+    }
+
+    private void OpenInputField()
+    {
+        inputField.gameObject.SetActive(true);
+        button.gameObject.SetActive(true);
+        inputField.ActivateInputField();
+
+        GameManager.Instance.SetGameState(GameState.Chatting);
+    }
+
+    private void CloseInputField()
+    {
+        inputField.gameObject.SetActive(false);
+        button.gameObject.SetActive(false);
+
+        GameManager.Instance.SetGameState(GameState.Playing);
     }
 
     #region IChatClientListener

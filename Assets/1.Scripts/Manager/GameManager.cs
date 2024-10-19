@@ -9,7 +9,7 @@ using Cinemachine;
 
 public enum GameState
 {
-    Initialising, Playing, Chatting
+    NULL, Initialising, Playing, Chatting, UISelecting
 }
 
 class PlayerObject
@@ -37,7 +37,9 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
     private bool[] validIndex = new bool[4];
     public int Index;
     public PlayerRef PlayerRef;
-    public GameState GameState = GameState.Initialising;
+    private GameState gameState = GameState.Initialising;
+    public GameState GameState => gameState;
+    private GameState storedGameState = GameState.NULL;
 
     private Dictionary<PlayerRef, PlayerObject> spawnedPlayers = new Dictionary<PlayerRef, PlayerObject>();
     public bool IsClear = false;
@@ -68,6 +70,15 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
         }
     }
 
+    private void LateUpdate()
+    {
+        if (storedGameState != GameState.NULL)
+        {
+            gameState = storedGameState;
+            storedGameState = GameState.NULL;
+        }
+    }
+
     public async void SpawnPlayer(PlayerRef playerRef)
     {
         Vector2 spawnPosition = playerSpawnPoint;
@@ -86,7 +97,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
     public void OnSpawned(int index)
     {
         Index = index;
-        GameState = GameState.Playing;
+        gameState = GameState.Playing;
         ChatManager.Instance.Init(networkRunner.SessionInfo.Name, index);
         RPC_OnSpawned(index);
     }
@@ -133,6 +144,11 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
     public Color GetColor(int index)
     {
         return userColors[index];
+    }
+
+    public void SetGameState(GameState state)
+    {
+        storedGameState = state;
     }
 
     public async void LeaveGame()

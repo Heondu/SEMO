@@ -11,6 +11,7 @@ public class PlayerInput : NetworkBehaviour, INetworkRunnerCallbacks
     private bool isJumping;
     private bool isJumpDone;
     private bool isDashing;
+    private bool isSlaming;
 
     private void Awake()
     {
@@ -24,6 +25,7 @@ public class PlayerInput : NetworkBehaviour, INetworkRunnerCallbacks
         isJumping = isJumping || Input.GetButtonDown("Jump");
         isJumpDone = isJumpDone || Input.GetButtonUp("Jump");
         isDashing = isDashing || Input.GetButtonDown("Dash");
+        isSlaming = isSlaming || Input.GetButtonDown("Slam");
     }
 
     public void OnInput(NetworkRunner runner, NetworkInput input)
@@ -41,7 +43,8 @@ public class PlayerInput : NetworkBehaviour, INetworkRunnerCallbacks
                     direction = direction,
                     isJumping = this.isJumping,
                     isJumpDone = this.isJumpDone,
-                    isDashing = this.isDashing
+                    isDashing = this.isDashing,
+                    isSlaming = this.isSlaming
                 };
             }
             else
@@ -51,12 +54,14 @@ public class PlayerInput : NetworkBehaviour, INetworkRunnerCallbacks
                     direction = 0,
                     isJumping = false,
                     isJumpDone = false,
-                    isDashing = false
+                    isDashing = false,
+                    isSlaming = false
                 };
             }
             isJumping = false;
             isJumpDone = false;
             isDashing = false;
+            isSlaming = false;
 
             input.Set(inputData);
         }

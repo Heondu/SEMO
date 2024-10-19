@@ -4,8 +4,11 @@ using TMPro;
 
 public class LobbyManager : MonoBehaviour
 {
+    [Header("Component")]
     [SerializeField] private NetworkManager networkManager;
+    [SerializeField] private UISelector uiSelector;
 
+    [Header("UI")]
     [SerializeField] private Button hostButton;
     [SerializeField] private Button joinButton;
     [SerializeField] private TMP_InputField roomCodeInputField;
@@ -21,6 +24,7 @@ public class LobbyManager : MonoBehaviour
         networkManager.onJoinLobby.AddListener(() => {
             hostButton.interactable = true;
             roomCodeInputField.interactable = true;
+            uiSelector.Select();
             });
 
         //초기에는 잘못된 연결을 막기위해 비활성화
@@ -36,7 +40,11 @@ public class LobbyManager : MonoBehaviour
             roomInfoText.gameObject.SetActive(false);
             joinButton.interactable = !(s == string.Empty); 
         });
-        roomCodeInputField.onSubmit.AddListener((s) => Join());
+        roomCodeInputField.onSubmit.AddListener((s) => {
+            roomCodeInputField.ActivateInputField();
+            Join();
+
+        });
 
         quitButton.onClick.AddListener(() => Application.Quit());
     }
@@ -68,6 +76,8 @@ public class LobbyManager : MonoBehaviour
         {
             //위 모두 아닐 시 방 접속
             networkManager.JoinGame(roomCode);
+            roomCodeInputField.interactable = false;
+            joinButton.interactable = false;
         }
     }
 }

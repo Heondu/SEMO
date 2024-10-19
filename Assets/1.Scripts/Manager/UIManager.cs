@@ -9,19 +9,30 @@ public class UIManager : NetworkBehaviour
     public static UIManager Instance { get; private set; }
     private NetworkRunner runner;
 
+    [Header("HUD")]
     [SerializeField] private TextMeshProUGUI roomCodeText;
     [SerializeField] private TextMeshProUGUI timeText;
     [SerializeField] private TextMeshProUGUI playerCountText;
+    [SerializeField] private Image[] voiceImages;
+    [SerializeField] private TextMeshProUGUI micText;
+
+    [Header("Menu")]
     [SerializeField] private GameObject menuPanel;
-    [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private UISelector menuUISelector;
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button exitButton;
+
+    [Header("Settings")]
+    [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private UISelector settingsUISelector;
+    [SerializeField] private Button closeButton;
+
+    [Header("Complete")]
     [SerializeField] private Button completeExitButton;
     [SerializeField] private TextMeshProUGUI bestTimeText;
     [SerializeField] private TextMeshProUGUI currentTimeText;
-    [SerializeField] private Image[] voiceImages;
-    [SerializeField] private TextMeshProUGUI micText;
+
     private float[] lastVoiceTimes;
 
     [Networked] public int NetworkedMin { get; set; }
@@ -34,25 +45,40 @@ public class UIManager : NetworkBehaviour
 
     private void Start()
     {
-        resumeButton.onClick.AddListener(() => menuPanel.SetActive(false));
+        resumeButton.onClick.AddListener(() => CloseMenu());
         settingsButton.onClick.AddListener(() => {
-            menuPanel.SetActive(false);
-            settingsPanel.SetActive(true);
+            CloseMenu();
+            OpenSettings();
         });
         exitButton.onClick.AddListener(() => GameManager.Instance.LeaveGame());
         completeExitButton.onClick.AddListener(() => GameManager.Instance.LeaveGame());
+
+        closeButton.onClick.AddListener(() => CloseSettings());
 
         lastVoiceTimes = new float[voiceImages.Length];
     }
 
     private void Update()
     {
+        if (GameManager.Instance.GameState != GameState.Playing && GameManager.Instance.GameState != GameState.UISelecting)
+            return;
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            menuPanel.SetActive(!menuPanel.activeSelf);
-            if (settingsPanel.activeSelf)
+            if (!menuPanel.activeSelf)
             {
-                settingsPanel.SetActive(false);
+                if (settingsPanel.activeSelf)
+                {
+                    CloseSettings();
+                }
+                else
+                {
+                    OpenMenu();
+                }
+            }
+            else
+            {
+                CloseMenu();
             }
         }
 
@@ -165,5 +191,31 @@ public class UIManager : NetworkBehaviour
     public void UpdateMicText(bool isMuted)
     {
         micText.gameObject.SetActive(isMuted);
+    }
+
+    private void OpenMenu()
+    {
+        menuPanel.SetActive(true);
+        menuUISelector.Select();
+        GameManager.Instance.SetGameState(GameState.UISelecting);
+    }
+
+    private void CloseMenu()
+    {
+        menuPanel.SetActive(false);
+        GameManager.Instance.SetGameState(GameState.Playing);
+    }
+
+    private void OpenSettings()
+    {
+        settingsPanel.SetActive(true);
+        settingsUISelector.Select();
+        GameManager.Instance.SetGameState(GameState.UISelecting);
+    }
+
+    private void CloseSettings()
+    {
+        settingsPanel.SetActive(false);
+        OpenMenu();
     }
 }

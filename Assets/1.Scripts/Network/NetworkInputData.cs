@@ -7,4 +7,5 @@ public struct NetworkInputData : INetworkInput
     public bool isJumping;
     public bool isJumpDone;
     public bool isDashing;
+    public bool isSlaming;
 }

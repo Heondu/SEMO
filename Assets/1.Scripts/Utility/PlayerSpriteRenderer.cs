@@ -14,6 +14,7 @@ public class PlayerSpriteRenderer : NetworkBehaviour
     [SerializeField] private Gradient[] trailColors;
     [SerializeField] private AnimationCurve jumpAnimCurve;
     [SerializeField] private AnimationCurve dashAnimCurve;
+    [SerializeField] private AnimationCurve slamAnimCurve;
     [SerializeField] private AnimationCurve collideAnimCurve;
     [SerializeField] private AnimationCurve emotionAnimCurve;
     [SerializeField] private float emotionDuration;
@@ -30,9 +31,11 @@ public class PlayerSpriteRenderer : NetworkBehaviour
         emotionController = FindObjectOfType<EmotionController>();
         defaultEmotion = faceRenderer.sprite;
 
+        playerController.onJump.AddListener(DoJumpAnim);
         playerController.onDash.AddListener(ShowTrail);
         playerController.onDash.AddListener(DoDashAnim);
-        playerController.onJump.AddListener(DoJumpAnim);
+        playerController.onSlam.AddListener(DoSlamAnim);
+        playerController.onSlam.AddListener(ShowTrail);
     }
 
     public void Init(int index)
@@ -137,6 +140,12 @@ public class PlayerSpriteRenderer : NetworkBehaviour
             RPC_DoDashAnim();
     }
 
+    private void DoSlamAnim()
+    {
+        if (Object.HasStateAuthority)
+            RPC_DoSlamAnim();
+    }
+
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_ShowTrail()
     {
@@ -153,6 +162,12 @@ public class PlayerSpriteRenderer : NetworkBehaviour
     public void RPC_DoDashAnim()
     {
         StartCoroutine(AnimRoutine(dashAnimCurve));
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_DoSlamAnim()
+    {
+        StartCoroutine(AnimRoutine(slamAnimCurve));
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]

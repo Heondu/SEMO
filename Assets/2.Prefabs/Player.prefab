@@ -161,6 +161,7 @@ MonoBehaviour:
   moveSpeed: 5
   jumpForce: 12
   dashForce: 20
+  slamForce: 30
   jumpDoneDuration: 0.1
   dashDuration: 0.2
   dashCooldown: 1
@@ -168,19 +169,20 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   groundOffset: {x: 0, y: -0.5, z: 0}
-  groundSize: 0.2
+  groundSize: 0.3
+  onJump:
+    m_PersistentCalls:
+      m_Calls: []
   onDash:
     m_PersistentCalls:
       m_Calls: []
-  onJump:
+  onSlam:
     m_PersistentCalls:
       m_Calls: []
   audioSource: {fileID: 4829547240649268949}
   jumpSound: {fileID: 8300000, guid: 7e9ee6dc04a5d40d1a5dfc4beb9865e7, type: 3}
   dashSound: {fileID: 8300000, guid: d46323e22e74e46baa241cbf48c85671, type: 3}
-  _NetworkedPosition: {x: 0, y: 0}
-  _NetworkedRotation: 0
-  interpolationSpeed: 16
+  slamSound: {fileID: 8300000, guid: 7e26c9daf4c32483b9c2790e662d3f1b, type: 3}
 --- !u!114 &7088848874438855406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -466,6 +468,39 @@ MonoBehaviour:
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  slamAnimCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0.2222358
+      outSlope: 0.2222358
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.9
+      value: 1.2000122
+      inSlope: 0.8920146
+      outSlope: 0.8920146
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.05102959
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: -2.0001216
+      outSlope: -2.0001216
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -858,7 +893,7 @@ MonoBehaviour:
   - {x: 0.60176337, y: -0.37206888, z: 0}
   m_ShapePathHash: 587069466
   m_Mesh: {fileID: 0}
-  m_InstanceId: 255784
+  m_InstanceId: 334844
   m_LocalBounds:
     m_Center: {x: -0.0043613315, y: 0.14828378, z: 0}
     m_Extent: {x: 0.60612464, y: 0.52907526, z: 0}
@@ -984,7 +1019,7 @@ MonoBehaviour:
   - {x: 0.65, y: -0.49999997, z: 0}
   m_ShapePathHash: -1812287985
   m_Mesh: {fileID: 0}
-  m_InstanceId: 255790
+  m_InstanceId: 334850
   m_LocalBounds:
     m_Center: {x: 0, y: 0.05000004, z: 0}
     m_Extent: {x: 0.65, y: 0.55, z: 0}
